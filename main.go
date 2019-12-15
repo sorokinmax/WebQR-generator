@@ -6,11 +6,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
 
 	"github.com/fogleman/gg"
+	"github.com/foolin/goview"
 	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/gin"
 	"github.com/kardianos/service"
@@ -33,13 +35,19 @@ func (p *program) Stop(s service.Service) error {
 
 func (p *program) run() {
 	gin.SetMode(gin.ReleaseMode)
-	f, _ := os.Create("./gin.log")
+	f, _ := os.Create(currentDir() + "./gin.log")
 	gin.DefaultWriter = io.MultiWriter(f)
 	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
 
 	router := gin.Default()
+
 	//new template engine
-	router.HTMLRender = ginview.Default()
+	router.HTMLRender = ginview.New(goview.Config{
+		Root:         currentDir() + "/views",
+		Extension:    ".html",
+		Master:       "layouts/master",
+		DisableCache: true,
+	})
 
 	router.GET("/", indexHandler)
 	router.POST("/create", formHandler)
@@ -71,21 +79,16 @@ func main() {
 
 func indexHandler(ctx *gin.Context) {
 	//var err error
-
 	ctx.HTML(http.StatusOK, "index", gin.H{
 		"Title": "QR Code Generator"},
 	)
-
 }
 
 func formHandler(ctx *gin.Context) {
-
 	dataString := ctx.PostForm("dataString")
 
 	qrCode, _ := qr.Encode(dataString, qr.L, qr.Auto)
 	qrCode, _ = barcode.Scale(qrCode, 1024, 1024)
-
-	//png.Encode(ctx.Writer, qrCode)
 
 	im := qrCode
 
@@ -93,7 +96,7 @@ func formHandler(ctx *gin.Context) {
 	dc.SetRGB(1, 1, 1)
 	dc.Clear()
 	dc.SetRGB(0, 0, 0)
-	if err := dc.LoadFontFace("./Arial.ttf", 16); err != nil {
+	if err := dc.LoadFontFace(currentDir()+"/Arial.ttf", 16); err != nil {
 		panic(err)
 	}
 	dc.DrawStringAnchored(dataString, 512, 1045, 0.5, 0)
@@ -107,4 +110,13 @@ func formHandler(ctx *gin.Context) {
 	png.Encode(ctx.Writer, dc.Image())
 
 	ctx.String(http.StatusOK, "Done")
+}
+
+func currentDir() string {
+	fullPath, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	path := filepath.Dir(fullPath)
+	return path
 }
