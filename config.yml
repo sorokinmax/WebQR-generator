@@ -1,0 +1,8 @@
+# Path configuration
+paths:
+  font: "/Arial.ttf"
+
+# Web server configuration
+web:
+  host: "localhost"
+  port: "80"

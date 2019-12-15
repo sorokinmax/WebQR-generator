@@ -19,6 +19,7 @@ import (
 )
 
 var logger service.Logger
+var cfg Config
 
 type program struct{}
 
@@ -34,6 +35,8 @@ func (p *program) Stop(s service.Service) error {
 }
 
 func (p *program) run() {
+	readConfigFile(&cfg)
+
 	gin.SetMode(gin.ReleaseMode)
 	f, _ := os.Create(currentDir() + "./gin.log")
 	gin.DefaultWriter = io.MultiWriter(f)
@@ -52,7 +55,7 @@ func (p *program) run() {
 	router.GET("/", indexHandler)
 	router.POST("/create", formHandler)
 
-	router.Run(":80")
+	router.Run(cfg.Web.Host + ":" + cfg.Web.Port)
 }
 
 func main() {
@@ -96,7 +99,7 @@ func formHandler(ctx *gin.Context) {
 	dc.SetRGB(1, 1, 1)
 	dc.Clear()
 	dc.SetRGB(0, 0, 0)
-	if err := dc.LoadFontFace(currentDir()+"/Arial.ttf", 16); err != nil {
+	if err := dc.LoadFontFace(currentDir()+cfg.Paths.Font, 16); err != nil {
 		panic(err)
 	}
 	dc.DrawStringAnchored(dataString, 512, 1045, 0.5, 0)
