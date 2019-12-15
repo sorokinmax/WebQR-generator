@@ -1,0 +1,11 @@
+{{define "head"}}
+	<h1>{{.Title}}</h1>
+{{end}}
+
+{{define "content"}}
+	<div>Enter text or URL</div>
+	<form action="/create" method=post>
+		<input type="text" name="dataString">
+		<input type="submit" value="Submit">
+	</form>
+{{end}}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{{.title}}</title>
+	{{template "head" .}}
+	<style type="text/css">
+		.copyleft {
+		  display: inline-block;
+		  -moz-transform: scale(-1, 1);
+		  -webkit-transform: scale(-1, 1);
+		  -o-transform: scale(-1, 1);
+		  -ms-transform: scale(-1, 1);
+		  transform: scale(-1, 1);
+		}
+	</style>
+</head>
+<body>
+	{{template "content" .}}
+	<hr>
+	{{include "layouts/footer"}}
+</body>
+</html>
