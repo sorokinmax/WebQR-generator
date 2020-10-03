@@ -39,8 +39,8 @@ func (p *program) run() {
 
 	gin.SetMode(gin.ReleaseMode)
 	f, _ := os.Create(currentDir() + "./gin.log")
-	gin.DefaultWriter = io.MultiWriter(f)
 	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+	defer f.Close()
 
 	router := gin.Default()
 
